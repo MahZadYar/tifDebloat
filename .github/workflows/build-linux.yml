@@ -1,0 +1,75 @@
+name: Build Linux Executable
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11']
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            python3-tk \
+            upx
+      
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+      
+      - name: Build executable with PyInstaller
+        run: |
+          pyinstaller tiff_comp.spec
+      
+      - name: Create release directory
+        run: |
+          mkdir -p release
+          cp dist/tiff-comp release/
+          chmod +x release/tiff-comp
+      
+      - name: Verify executable
+        run: |
+          file release/tiff-comp
+          release/tiff-comp --help 2>/dev/null || true
+      
+      - name: Create tarball
+        run: |
+          cd release
+          tar -czf tiff-comp-linux-x64.tar.gz tiff-comp
+          cd ..
+      
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tiff-comp-linux
+          path: release/tiff-comp
+          retention-days: 30
+      
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            release/tiff-comp
+            release/tiff-comp-linux-x64.tar.gz
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
