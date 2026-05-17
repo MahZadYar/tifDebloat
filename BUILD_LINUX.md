@@ -163,10 +163,12 @@ sudo apt-get install python3-tk
 ./tiff-comp 2>&1 | tee debug.log
 ```
 
-### Issue: "UPX compression failed"
-**Solution:** UPX may not support your platform. Edit `tiff_comp.spec` and change:
+### Issue: "UPX compression failed" or runtime `Illegal instruction (core dumped)`
+**Solution:** build without UPX packing. This repository already sets `upx=False` in `tiff_comp.spec` by default.
+
+If you changed it, switch it back to:
 ```python
-upx=False,  # Disable UPX compression
+upx=False
 ```
 
 Then rebuild.
