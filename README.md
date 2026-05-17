@@ -211,6 +211,19 @@ sudo apt-get install python3-tk
 sudo dnf install python3-tkinter
 ```
 
+### "Illegal instruction (core dumped)" on Linux
+If this happens with the standalone executable, rebuild without UPX packing (this repository now uses `upx=False` by default in `tiff_comp.spec`).
+
+If you are running from Python instead of the standalone executable, recreate a clean virtual environment and reinstall dependencies:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
+python3 gui.py
+```
+
 ## Metadata Preservation Example
 
 **Original TIFF tags:**
