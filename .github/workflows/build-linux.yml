@@ -31,8 +31,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            python3-tk \
-            upx
+            python3-tk
       
       - name: Install Python dependencies
         run: |
